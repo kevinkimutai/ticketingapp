@@ -2,9 +2,10 @@ package grpc
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/kevinkimutai/ticketingapp/auth/ports"
 	authproto "github.com/kevinkimutai/ticketingapp/auth/proto/golang"

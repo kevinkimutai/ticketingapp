@@ -1,6 +1,7 @@
 package ports
 
+import "github.com/kevinkimutai/ticketingapp/auth/application/domain"
+
 type DBPort interface {
-	CreateUser()
-	GetUserByEmail()
+	CreateUser(user domain.User) (domain.User, error)
 }

@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 
+	"github.com/kevinkimutai/ticketingapp/auth/application/domain"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -31,10 +32,12 @@ func NewAdapter(dbString string) (*Adapter, error) {
 	return &Adapter{db: db}, nil
 }
 
-func (a *Adapter) CreateUser() {}
+func (a *Adapter) CreateUser(user domain.User) (domain.User, error) {
+	err := a.db.Create(&user).Error
 
-func (a *Adapter) GetUserByEmail() {}
+	if err != nil {
+		return user, err
+	}
 
-func comparePasswords() {}
-
-func getJWT() {}
+	return user, nil
+}

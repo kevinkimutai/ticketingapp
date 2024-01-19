@@ -1,9 +1,10 @@
 package main
 
 import (
-	"log"
 	"os"
 	"strconv"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/kevinkimutai/ticketingapp/auth/adapters/db"
 	"github.com/kevinkimutai/ticketingapp/auth/adapters/grpc"
