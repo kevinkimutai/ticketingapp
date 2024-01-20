@@ -2,6 +2,8 @@ package domain
 
 import (
 	"errors"
+	"net/mail"
+	"regexp"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -25,12 +27,49 @@ func NewUser(user User) (User, error) {
 	return user, nil
 }
 
-func (u User) HashPassword() error {
+func (u User) HashPassword() (User, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(u.Password), 14)
 	if err != nil {
-		return err
+		return u, err
 	}
-	u.Password = string(bytes)
+
+	return User{FirstName: u.FirstName, LastName: u.LastName, Email: u.Email, Password: string(bytes), CreatedAt: u.CreatedAt}, nil
+}
+
+func (u User) CheckEmail() error {
+	_, err := mail.ParseAddress(u.Email)
+
+	return err
+
+}
+
+func (u User) CheckPasswordStrength() error {
+	// Check if the password is at least 8 characters long
+	if len(u.Password) < 8 {
+		return errors.New("password must be at least 8 characters long")
+	}
+
+	// Check if the password contains at least one uppercase letter
+	if ok, _ := regexp.MatchString("[A-Z]", u.Password); !ok {
+		return errors.New("password must contain at least one uppercase letter")
+	}
+
+	// Check if the password contains at least one lowercase letter
+	if ok, _ := regexp.MatchString("[a-z]", u.Password); !ok {
+		return errors.New("password must contain at least one lowercase letter")
+	}
+
+	// Check if the password contains at least one digit
+	if ok, _ := regexp.MatchString("[0-9]", u.Password); !ok {
+		return errors.New("password must contain at least one digit")
+	}
+
+	// Check if the password contains at least one special character
+	if ok, _ := regexp.MatchString("[!@#$%^&*(),.?\":{}|<>]", u.Password); !ok {
+		return errors.New("password must contain at least one special character")
+	}
+
+	// Password meets all criteria
 	return nil
 }
 

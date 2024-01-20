@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/kevinkimutai/ticketingapp/auth/application/domain"
@@ -18,18 +19,30 @@ func (a Adapter) Signup(ctx context.Context, req *authproto.SignUpRequest) (*aut
 	request := domain.User{FirstName: req.FirstName, LastName: req.LastName, Email: req.Email, Password: req.Password, CreatedAt: time.Now()}
 
 	newUser, err := domain.NewUser(request)
-
 	if err != nil {
 		return nil, err
 	}
 
-	err = newUser.HashPassword()
+	//Check Email Is Valid
+	err = newUser.CheckEmail()
+	if err != nil {
+		return nil, errors.New("invalid email address ")
+	}
+
+	//Check Password Strength
+	err = newUser.CheckPasswordStrength()
+	if err != nil {
+		return nil, err
+	}
+
+	//Hash Password
+	hashedUser, err := newUser.HashPassword()
 	if err != nil {
 		return nil, err
 
 	}
 
-	result, err := a.api.Signup(newUser)
+	result, err := a.api.Signup(hashedUser)
 	if err != nil {
 		return nil, err
 
