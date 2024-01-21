@@ -11,7 +11,25 @@ import (
 
 func (a Adapter) Login(ctx context.Context, req *authproto.LoginRequest) (*authproto.LoginResponse, error) {
 
-	return nil, nil
+	request := domain.LoginUser{Email: req.Email, Password: req.Password}
+
+	newLogin, err := domain.NewLogin(request)
+	if err != nil {
+		return nil, err
+	}
+
+	//Check Email Is Valid
+	err = domain.CheckEmail(newLogin.Email)
+	if err != nil {
+		return nil, errors.New("invalid input email address ")
+	}
+
+	//Check If Email Exists In DB
+	tokenStr, err := a.api.Login(newLogin)
+	if err != nil {
+		return nil, err
+	}
+	return &authproto.LoginResponse{Token: tokenStr}, nil
 }
 
 func (a Adapter) Signup(ctx context.Context, req *authproto.SignUpRequest) (*authproto.SignUpResponse, error) {
@@ -24,7 +42,7 @@ func (a Adapter) Signup(ctx context.Context, req *authproto.SignUpRequest) (*aut
 	}
 
 	//Check Email Is Valid
-	err = newUser.CheckEmail()
+	err = domain.CheckEmail(newUser.Email)
 	if err != nil {
 		return nil, errors.New("invalid email address ")
 	}

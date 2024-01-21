@@ -18,6 +18,11 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type LoginUser struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func NewUser(user User) (User, error) {
 
 	if user.Email == "" || user.Password == "" || user.FirstName == "" || user.LastName == "" {
@@ -25,6 +30,15 @@ func NewUser(user User) (User, error) {
 	}
 
 	return user, nil
+}
+
+func NewLogin(user LoginUser) (LoginUser,error){
+	if user.Email == "" || user.Password == ""  {
+		return user, errors.New("missing fields during Login")
+	}
+
+	return user, nil
+
 }
 
 func (u User) HashPassword() (User, error) {
@@ -36,8 +50,8 @@ func (u User) HashPassword() (User, error) {
 	return User{FirstName: u.FirstName, LastName: u.LastName, Email: u.Email, Password: string(bytes), CreatedAt: u.CreatedAt}, nil
 }
 
-func (u User) CheckEmail() error {
-	_, err := mail.ParseAddress(u.Email)
+func CheckEmail(email string) error {
+	_, err := mail.ParseAddress(email)
 
 	return err
 

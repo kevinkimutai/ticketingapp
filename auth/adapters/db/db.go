@@ -1,9 +1,16 @@
 package db
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"time"
 
+	"github.com/charmbracelet/log"
+
+	"github.com/golang-jwt/jwt"
 	"github.com/kevinkimutai/ticketingapp/auth/application/domain"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -40,4 +47,50 @@ func (a *Adapter) CreateUser(user domain.User) (domain.User, error) {
 	}
 
 	return user, nil
+}
+
+func (a *Adapter) Login(user domain.LoginUser) (string, error) {
+
+	//Check Email
+	foundUser := User{}
+	err := a.db.Where("email = ?", user.Email).First(&foundUser).Error
+	if err != nil {
+		return "", errors.New("wrong email or password")
+	}
+
+	//Compare Passwords
+	err = bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(user.Password))
+	if err != nil {
+		return "", errors.New("wrong email or password")
+	}
+
+	//Create JWT
+	token, err := foundUser.CreateJWT()
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (user *User) CreateJWT() (string, error) {
+	claims := jwt.MapClaims{
+		"sub": user.ID,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"iat": time.Now().Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	JWTSecretKey := os.Getenv("JWT_SECRET_KEY")
+	log.Info(JWTSecretKey)
+
+	// Sign the token with the secret key
+	tokenString, err := token.SignedString([]byte(JWTSecretKey))
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+
 }

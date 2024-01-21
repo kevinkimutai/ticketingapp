@@ -21,4 +21,8 @@ func (a *Application) Signup(user domain.User) (domain.User, error) {
 
 }
 
-func (a *Application) Login() {}
+func (a *Application) Login(user domain.LoginUser) (string, error) {
+	tokenStr, err := a.db.Login(user)
+
+	return tokenStr, err
+}
