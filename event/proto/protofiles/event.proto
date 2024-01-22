@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package = "github.com/kevinkimutai/ticketingapp/event/eventproto";
+
+message CreateEventRequest {
+    string name = 1;
+    string venue = 2;
+    string town = 3;
+    float longitude = 4;
+    float latitude = 5;
+    string poster_img = 6;
+    repeated string images_url = 7;
+}
+
+message CreateEventResponse {
+    string token_id = 1;
+}
+
+
+service Event {
+    rpc CreateEvent (CreateEventRequest) returns (CreateEventResponse);
+ 
+}
