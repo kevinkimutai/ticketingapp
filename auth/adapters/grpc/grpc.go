@@ -2,11 +2,12 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/kevinkimutai/ticketingapp/auth/application/domain"
 	authproto "github.com/kevinkimutai/ticketingapp/auth/proto/golang"
+	"google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 func (a Adapter) Login(ctx context.Context, req *authproto.LoginRequest) (*authproto.LoginResponse, error) {
@@ -21,7 +22,7 @@ func (a Adapter) Login(ctx context.Context, req *authproto.LoginRequest) (*authp
 	//Check Email Is Valid
 	err = domain.CheckEmail(newLogin.Email)
 	if err != nil {
-		return nil, errors.New("invalid input email address ")
+		return nil, status.Errorf(codes.InvalidArgument, "email address is invalid")
 	}
 
 	//Check If Email Exists In DB
@@ -44,7 +45,7 @@ func (a Adapter) Signup(ctx context.Context, req *authproto.SignUpRequest) (*aut
 	//Check Email Is Valid
 	err = domain.CheckEmail(newUser.Email)
 	if err != nil {
-		return nil, errors.New("invalid email address ")
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid email address")
 	}
 
 	//Check Password Strength

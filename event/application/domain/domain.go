@@ -1,8 +1,10 @@
 package domain
 
 import (
-	"errors"
 	"time"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Event struct {
@@ -19,8 +21,8 @@ type Event struct {
 
 func NewEvent(e Event) (Event, error) {
 	if e.Name == "" || e.PosterImgURL == "" || e.Town == "" || e.Venue == "" {
-		return e, errors.New("missing fields in event")
+		return e, status.Errorf(codes.InvalidArgument, "missing input fields in event")
 	}
 
-	return event, nil
+	return e, nil
 }

@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 
+	"github.com/kevinkimutai/ticketingapp/event/application/domain"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -32,4 +33,14 @@ func NewAdapter(dbString string) (*Adapter, error) {
 		return nil, fmt.Errorf("db migration error: %v", err)
 	}
 	return &Adapter{db: db}, nil
+}
+
+func (a *Adapter) Create(event domain.Event) (domain.Event, error) {
+	err := a.db.Create(&event).Error
+
+	if err != nil {
+		return event, err
+	}
+
+	return event, nil
 }

@@ -1,6 +1,9 @@
 package api
 
-import "github.com/kevinkimutai/ticketingapp/event/ports"
+import (
+	"github.com/kevinkimutai/ticketingapp/event/application/domain"
+	"github.com/kevinkimutai/ticketingapp/event/ports"
+)
 
 type Application struct {
 	db  ports.DBPort
@@ -11,9 +14,9 @@ func NewApplication(db ports.DBPort) *Application {
 	return &Application{db: db}
 }
 
-func (a *Application) Signup(user domain.User) (domain.User, error) {
-	result, err := a.db.CreateUser(user)
-
+func (a *Application) CreateEvent(event domain.Event) (domain.Event, error) {
+	
+	result, err := a.db.Create(event)
 	return result, err
 
 }

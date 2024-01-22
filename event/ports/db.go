@@ -1,5 +1,7 @@
 package ports
 
+import "github.com/kevinkimutai/ticketingapp/event/application/domain"
+
 type DBPort interface {
-	CreateEvent()
+	Create(domain.Event) (domain.Event, error)
 }

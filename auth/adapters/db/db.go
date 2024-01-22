@@ -1,16 +1,15 @@
 package db
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"time"
 
-	"github.com/charmbracelet/log"
-
 	"github.com/golang-jwt/jwt"
 	"github.com/kevinkimutai/ticketingapp/auth/application/domain"
 	"golang.org/x/crypto/bcrypt"
+	"google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -55,13 +54,13 @@ func (a *Adapter) Login(user domain.LoginUser) (string, error) {
 	foundUser := User{}
 	err := a.db.Where("email = ?", user.Email).First(&foundUser).Error
 	if err != nil {
-		return "", errors.New("wrong email or password")
+		return "", status.Errorf(codes.PermissionDenied, "wrong email or password")
 	}
 
 	//Compare Passwords
 	err = bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(user.Password))
 	if err != nil {
-		return "", errors.New("wrong email or password")
+		return "", status.Errorf(codes.PermissionDenied, "wrong email or password")
 	}
 
 	//Create JWT
@@ -83,12 +82,12 @@ func (user *User) CreateJWT() (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	JWTSecretKey := os.Getenv("JWT_SECRET_KEY")
-	log.Info(JWTSecretKey)
 
 	// Sign the token with the secret key
 	tokenString, err := token.SignedString([]byte(JWTSecretKey))
 	if err != nil {
-		return "", err
+		errMsg := fmt.Sprintf("something went wrong when hashing the token: %v", err)
+		return "", status.Errorf(codes.Internal, errMsg)
 	}
 
 	return tokenString, nil
