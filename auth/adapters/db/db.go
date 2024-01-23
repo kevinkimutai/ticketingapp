@@ -72,6 +72,44 @@ func (a *Adapter) Login(user domain.LoginUser) (string, error) {
 	return token, nil
 }
 
+func (a *Adapter) VerifyJWT(tokenString string) (string, error) {
+	JWTSecretKey := os.Getenv("JWT_SECRET_KEY")
+
+	key := []byte(JWTSecretKey)
+
+	// Parse and verify the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Verify the token using the key
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, status.Errorf(codes.Internal, "unexpected signing method")
+		}
+		return key, nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	// Check if the token is valid
+	if token.Valid {
+		// Access token claims
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+
+			//Check If User Exists
+			err := a.db.First(&User{}, claims["sub"]).Error
+
+			if err != nil {
+				return "", status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
+			}
+
+			return "OK,token valid", nil
+		}
+		return "", status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
+	} else {
+		return "", status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
+	}
+}
+
 func (user *User) CreateJWT() (string, error) {
 	claims := jwt.MapClaims{
 		"sub": user.ID,

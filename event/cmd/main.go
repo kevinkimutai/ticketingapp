@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/log"
 
+	"github.com/kevinkimutai/ticketingapp/event/adapters/auth"
 	"github.com/kevinkimutai/ticketingapp/event/adapters/db"
 	"github.com/kevinkimutai/ticketingapp/event/adapters/grpc"
 	"github.com/kevinkimutai/ticketingapp/event/application/api"
@@ -23,6 +24,7 @@ func main() {
 	//GET ENV VARIABLES
 	PORT := os.Getenv("PORT")
 	DBURL := os.Getenv("DB_URL")
+	AUTHURL := os.Getenv("AUTH_URL")
 
 	//Convert Port to int
 	portInt, err := strconv.Atoi(PORT)
@@ -31,11 +33,16 @@ func main() {
 	}
 
 	dbAdapter, err := db.NewAdapter(DBURL)
-
 	if err != nil {
 		log.Fatal("couldnt connect to DB", err)
 	}
-	application := api.NewApplication(dbAdapter)
+
+	authAdapter, err := auth.NewAdapter(AUTHURL)
+	if err != nil {
+		log.Fatal("couldnt connect to Auth Service", err)
+	}
+
+	application := api.NewApplication(dbAdapter, authAdapter)
 
 	grpcServer := grpc.NewAdapter(application, portInt)
 

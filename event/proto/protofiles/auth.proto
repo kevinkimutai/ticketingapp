@@ -30,7 +30,7 @@ message VerifyTokenResponse{
     string message = 1;
 }
 service AuthProto {
-    rpc Login (LoginRequest) returns (LoginResponse);
+  rpc Login (LoginRequest) returns (LoginResponse);
   rpc Signup (SignUpRequest) returns (SignUpResponse);
   rpc VerifyJWT(VerifyTokenRequest)returns(VerifyTokenResponse);
 }

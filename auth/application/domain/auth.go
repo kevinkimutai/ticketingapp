@@ -90,7 +90,3 @@ func (u User) CheckPasswordStrength() error {
 	// Password meets all criteria
 	return nil
 }
-
-func (u User) CreateJWT()        {}
-func (u User) VerifyJWT()        {}
-func (u User) comparePasswords() {}

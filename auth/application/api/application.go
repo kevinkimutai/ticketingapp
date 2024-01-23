@@ -26,3 +26,9 @@ func (a *Application) Login(user domain.LoginUser) (string, error) {
 
 	return tokenStr, err
 }
+
+func (a *Application) Verify(token string) (string, error) {
+	msg, err := a.db.VerifyJWT(token)
+
+	return msg, err
+}

@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -9,7 +10,10 @@ import (
 	"github.com/kevinkimutai/ticketingapp/event/ports"
 	eventproto "github.com/kevinkimutai/ticketingapp/event/proto/golang/event"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 type Adapter struct {
@@ -29,7 +33,7 @@ func (a Adapter) Run() {
 	if err != nil {
 		log.Fatalf("failed to listen on port %d, error: %v", a.port, err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(a.jwtAuthInterceptor))
 
 	a.server = grpcServer
 
@@ -43,14 +47,13 @@ func (a Adapter) Run() {
 	fmt.Printf("GRPC server running on PORT: %v", a.port)
 }
 
-//TODO:FINISH AUTHENTICATION
-// func jwtAuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
-// ) (interface{}, error) {
-// 	md, ok := metadata.FromIncomingContext(ctx)
-// 	if !ok {
-// 		return nil, status.Errorf(codes.InvalidArgument, "metadata not provided")
-// 	}
-// 	//Check If User is Authenticated
+func (a Adapter) jwtAuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
+) (interface{}, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.InvalidArgument, "metadata not provided")
+	}
+	//Check If User is Authenticated
 
-// 	return handler(ctx, req)
-// }
+	return handler(ctx, req)
+}

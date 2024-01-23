@@ -69,3 +69,17 @@ func (a Adapter) Signup(ctx context.Context, req *authproto.SignUpRequest) (*aut
 	return &authproto.SignUpResponse{UserId: result.ID}, nil
 
 }
+
+func (a Adapter) VerifyJWT(ctx context.Context, req *authproto.VerifyTokenRequest) (*authproto.VerifyTokenResponse, error) {
+	if req.Token == "" {
+		return nil, status.Errorf(codes.PermissionDenied, "login to continue")
+	}
+
+	result, err := a.api.Verify(req.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	return &authproto.VerifyTokenResponse{Message: result}, nil
+
+}
