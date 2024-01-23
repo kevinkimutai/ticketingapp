@@ -54,13 +54,13 @@ func (a *Adapter) Login(user domain.LoginUser) (string, error) {
 	foundUser := User{}
 	err := a.db.Where("email = ?", user.Email).First(&foundUser).Error
 	if err != nil {
-		return "", status.Errorf(codes.PermissionDenied, "wrong email or password")
+		return "", status.Errorf(codes.Unauthenticated, "wrong email or password")
 	}
 
 	//Compare Passwords
 	err = bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(user.Password))
 	if err != nil {
-		return "", status.Errorf(codes.PermissionDenied, "wrong email or password")
+		return "", status.Errorf(codes.Unauthenticated, "wrong email or password")
 	}
 
 	//Create JWT
@@ -78,7 +78,7 @@ func (a *Adapter) VerifyJWT(tokenString string) (string, error) {
 	key := []byte(JWTSecretKey)
 
 	// Parse and verify the token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(string(tokenString), func(token *jwt.Token) (interface{}, error) {
 		// Verify the token using the key
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, status.Errorf(codes.Internal, "unexpected signing method")
@@ -87,7 +87,8 @@ func (a *Adapter) VerifyJWT(tokenString string) (string, error) {
 	})
 
 	if err != nil {
-		return "", err
+		errMsg := fmt.Sprintf("wrong token.unauthorised %v", err)
+		return "", status.Errorf(codes.Unauthenticated, errMsg)
 	}
 
 	// Check if the token is valid

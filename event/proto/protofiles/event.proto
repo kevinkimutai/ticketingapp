@@ -9,7 +9,7 @@ message CreateEventRequest {
     float longitude = 4;
     float latitude = 5;
     string poster_img = 6;
-    repeated string images_url = 7;
+
 }
 
 message CreateEventResponse {

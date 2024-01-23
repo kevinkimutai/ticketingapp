@@ -42,9 +42,9 @@ func main() {
 		log.Fatal("couldnt connect to Auth Service", err)
 	}
 
-	application := api.NewApplication(dbAdapter, authAdapter)
+	application := api.NewApplication(dbAdapter)
 
-	grpcServer := grpc.NewAdapter(application, portInt)
+	grpcServer := grpc.NewAdapter(application, portInt, authAdapter)
 
 	grpcServer.Run()
 }

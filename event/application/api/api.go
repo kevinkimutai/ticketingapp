@@ -6,24 +6,16 @@ import (
 )
 
 type Application struct {
-	db   ports.DBPort
-	auth ports.AuthPort
+	db ports.DBPort
 }
 
-func NewApplication(db ports.DBPort, auth ports.AuthPort) *Application {
-	return &Application{db: db, auth: auth}
+func NewApplication(db ports.DBPort) *Application {
+	return &Application{db: db}
 }
 
 func (a *Application) CreateEvent(event domain.Event) (domain.Event, error) {
 
 	result, err := a.db.Create(event)
 	return result, err
-
-}
-
-func (a *Application) Verify(token string) error {
-	err := a.auth.Verify(token)
-
-	return err
 
 }

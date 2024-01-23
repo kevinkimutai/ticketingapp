@@ -3,9 +3,11 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"os"
+	"strings"
+
+	"github.com/charmbracelet/log"
 
 	"github.com/kevinkimutai/ticketingapp/event/ports"
 	eventproto "github.com/kevinkimutai/ticketingapp/event/proto/golang/event"
@@ -18,13 +20,15 @@ import (
 
 type Adapter struct {
 	api    ports.APIPort
+	auth   ports.AuthPort
 	port   int
 	server *grpc.Server
 	eventproto.UnimplementedEventServer
 }
 
-func NewAdapter(api ports.APIPort, port int) *Adapter {
-	return &Adapter{api: api, port: port}
+func NewAdapter(api ports.APIPort, port int, auth ports.AuthPort) *Adapter {
+
+	return &Adapter{api: api, port: port, auth: auth}
 }
 
 func (a Adapter) Run() {
@@ -33,7 +37,8 @@ func (a Adapter) Run() {
 	if err != nil {
 		log.Fatalf("failed to listen on port %d, error: %v", a.port, err)
 	}
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(a.jwtAuthInterceptor))
+
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(a.JWTAuthInterceptor))
 
 	a.server = grpcServer
 
@@ -47,13 +52,37 @@ func (a Adapter) Run() {
 	fmt.Printf("GRPC server running on PORT: %v", a.port)
 }
 
-func (a Adapter) jwtAuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
+func (a *Adapter) Verify(token string) error {
+	err := a.auth.Verify(token)
+
+	return err
+
+}
+
+func (a *Adapter) JWTAuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler,
 ) (interface{}, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, status.Errorf(codes.InvalidArgument, "metadata not provided")
 	}
 	//Check If User is Authenticated
+	authorization, exists := md["authorization"]
+	if !exists || len(authorization) == 0 {
+		return nil, status.Errorf(codes.PermissionDenied, "unauthorised.login")
+	}
 
-	return handler(ctx, req)
+	startsWith := "Bearer"
+
+	if strings.HasPrefix(authorization[0], startsWith) {
+		tokenStr := strings.TrimPrefix(authorization[0], startsWith)
+		token := strings.TrimSpace(tokenStr)
+
+		err := a.auth.Verify(token)
+		if err != nil {
+			return nil, err
+		}
+
+		return handler(ctx, req)
+	}
+	return nil, status.Errorf(codes.PermissionDenied, "unauthorised.login")
 }

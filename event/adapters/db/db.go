@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kevinkimutai/ticketingapp/event/application/domain"
-	"github.com/lib/pq"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -16,8 +16,7 @@ type Event struct {
 	Town         string
 	Longitude    float64
 	Latitude     float64
-	PosterImgURL string         `json:"poster_img"`
-	ImagesURL    pq.StringArray `gorm:"type:text[]"`
+	PosterImgURL string `json:"poster_img"`
 }
 
 type Adapter struct {

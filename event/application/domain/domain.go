@@ -8,15 +8,15 @@ import (
 )
 
 type Event struct {
-	ID           int64    `json:"id"`
-	Name         string   `json:"name"`
-	PosterImgURL string   `json:"poster_img"`
-	ImagesURL    []string `json:"images_url"`
-	Venue        string   `json:"venue"`
-	Town         string   `json:"town"`
-	Longitude    float64  `json:"longitude"`
-	Latitude     float64  `json:"latitude"`
-	CreatedAt    time.Time
+	ID           int64  `json:"id"`
+	Name         string `json:"name"`
+	PosterImgURL string `json:"poster_img"`
+
+	Venue     string  `json:"venue"`
+	Town      string  `json:"town"`
+	Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+	CreatedAt time.Time
 }
 
 func NewEvent(e Event) (Event, error) {
