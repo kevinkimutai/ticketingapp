@@ -25,6 +25,9 @@ type Adapter struct {
 	server *grpc.Server
 	eventproto.UnimplementedEventServer
 }
+type contextkey string
+
+const userIDKey contextkey = "userid"
 
 func NewAdapter(api ports.APIPort, port int, auth ports.AuthPort) *Adapter {
 
@@ -52,10 +55,10 @@ func (a Adapter) Run() {
 	fmt.Printf("GRPC server running on PORT: %v", a.port)
 }
 
-func (a *Adapter) Verify(token string) error {
-	err := a.auth.Verify(token)
+func (a *Adapter) Verify(token string) (uint64, error) {
+	userId, err := a.auth.Verify(token)
 
-	return err
+	return userId, err
 
 }
 
@@ -77,10 +80,13 @@ func (a *Adapter) JWTAuthInterceptor(ctx context.Context, req interface{}, info 
 		tokenStr := strings.TrimPrefix(authorization[0], startsWith)
 		token := strings.TrimSpace(tokenStr)
 
-		err := a.auth.Verify(token)
+		userID, err := a.auth.Verify(token)
 		if err != nil {
 			return nil, err
 		}
+
+		// Add user ID to context
+		ctx = context.WithValue(ctx, userIDKey, userID)
 
 		return handler(ctx, req)
 	}

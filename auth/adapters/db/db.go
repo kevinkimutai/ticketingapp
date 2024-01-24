@@ -72,7 +72,7 @@ func (a *Adapter) Login(user domain.LoginUser) (string, error) {
 	return token, nil
 }
 
-func (a *Adapter) VerifyJWT(tokenString string) (string, error) {
+func (a *Adapter) VerifyJWT(tokenString string) (domain.User, error) {
 	JWTSecretKey := os.Getenv("JWT_SECRET_KEY")
 
 	key := []byte(JWTSecretKey)
@@ -88,7 +88,7 @@ func (a *Adapter) VerifyJWT(tokenString string) (string, error) {
 
 	if err != nil {
 		errMsg := fmt.Sprintf("wrong token.unauthorised %v", err)
-		return "", status.Errorf(codes.Unauthenticated, errMsg)
+		return domain.User{}, status.Errorf(codes.Unauthenticated, errMsg)
 	}
 
 	// Check if the token is valid
@@ -100,14 +100,22 @@ func (a *Adapter) VerifyJWT(tokenString string) (string, error) {
 			err := a.db.First(&User{}, claims["sub"]).Error
 
 			if err != nil {
-				return "", status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
+				return domain.User{}, status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
 			}
 
-			return "OK,token valid", nil
+			userIDClaim := claims["sub"].(float64)
+
+			//Convert UserID to uint64
+			userid := uint64(userIDClaim)
+
+			// Now you can use userIDClaim as a string
+			user := domain.User{ID: userid}
+
+			return user, nil
 		}
-		return "", status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
+		return domain.User{}, status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
 	} else {
-		return "", status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
+		return domain.User{}, status.Errorf(codes.Unauthenticated, "Unauthorised,Login with proper rights")
 	}
 }
 

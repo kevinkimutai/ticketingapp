@@ -1,5 +1,5 @@
 package ports
 
 type AuthPort interface {
-	Verify(token string) error
+	Verify(token string) (uint64, error)
 }

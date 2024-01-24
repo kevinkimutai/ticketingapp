@@ -80,6 +80,6 @@ func (a Adapter) VerifyJWT(ctx context.Context, req *authproto.VerifyTokenReques
 		return nil, err
 	}
 
-	return &authproto.VerifyTokenResponse{Message: result}, nil
+	return &authproto.VerifyTokenResponse{UserId: uint64(result.ID)}, nil
 
 }

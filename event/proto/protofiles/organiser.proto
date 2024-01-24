@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "github.com/kevinkimutai/ticketingapp/event/organiserproto";
+
+message CreateOrganiserRequest {
+    uint64 event_id = 1;
+    uint64 user_id = 2;
+
+}
+
+message CreateOrganiserResponse {
+    uint64 organiser_id = 1;
+}
+
+
+service Organiser {
+    rpc CreateOrganiser (CreateOrganiserRequest) returns (CreateOrganiserResponse);
+ 
+}

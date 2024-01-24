@@ -27,7 +27,7 @@ message VerifyTokenRequest{
 }
 
 message VerifyTokenResponse{
-    string message = 1;
+    uint64 user_id = 1;
 }
 service AuthProto {
     rpc Login (LoginRequest) returns (LoginResponse);

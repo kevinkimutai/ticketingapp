@@ -36,11 +36,13 @@ func NewAdapter(dbString string) (*Adapter, error) {
 }
 
 func (a *Adapter) Create(event domain.Event) (domain.Event, error) {
-	err := a.db.Create(&event).Error
-
+	//Begin Transaction
+	tx := a.db.Begin()
+	err := tx.Create(&event).Error
 	if err != nil {
 		return event, err
 	}
+	//Organiser service
 
 	return event, nil
 }
