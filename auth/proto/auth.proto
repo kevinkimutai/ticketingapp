@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option go_package = "github.com/kevinkimutai/ticketingapp/auth/authproto";
 
+import "google/api/annotations.proto";
+
 message LoginRequest {
     string email = 1;
     string password = 2;
@@ -27,10 +29,26 @@ message VerifyTokenRequest{
 }
 
 message VerifyTokenResponse{
-    uint64 user_id = 1;
+   uint64 user_id = 1;
 }
+
 service AuthProto {
-    rpc Login (LoginRequest) returns (LoginResponse);
-  rpc Signup (SignUpRequest) returns (SignUpResponse);
-  rpc VerifyJWT(VerifyTokenRequest)returns(VerifyTokenResponse);
-}
+  rpc Login (LoginRequest) returns (LoginResponse){
+    option (google.api.http) = {
+     post: "/v1/auth/login"
+     body: "*"
+   };
+  };
+  rpc Signup (SignUpRequest) returns (SignUpResponse){
+    option (google.api.http) = {
+     post: "/v1/auth/signup"
+     body: "*"
+   };
+  };
+  rpc VerifyJWT(VerifyTokenRequest)returns(VerifyTokenResponse){
+    option (google.api.http) = {
+     post: "/v1/auth/verify"
+     body: "*"
+   };
+};
+};

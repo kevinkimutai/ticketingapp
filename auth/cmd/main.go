@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 
 	"github.com/kevinkimutai/ticketingapp/auth/adapters/db"
+	"github.com/kevinkimutai/ticketingapp/auth/adapters/gateway"
 	"github.com/kevinkimutai/ticketingapp/auth/adapters/grpc"
 	"github.com/kevinkimutai/ticketingapp/auth/application/api"
 
@@ -21,11 +22,18 @@ func main() {
 	}
 
 	//GET ENV VARIABLES
-	PORT := os.Getenv("PORT")
+	PORT := os.Getenv("GRPC_PORT")
+	GATEWAYPORT := os.Getenv("HTTP_PORT")
 	DBURL := os.Getenv("DB_URL")
 
 	//Convert Port to int
 	portInt, err := strconv.Atoi(PORT)
+	if err != nil {
+		log.Fatal("Error converting port err")
+	}
+
+	//Convert Gateway Port to int
+	gatewayPortInt, err := strconv.Atoi(GATEWAYPORT)
 	if err != nil {
 		log.Fatal("Error converting port err")
 	}
@@ -39,5 +47,8 @@ func main() {
 
 	grpcServer := grpc.NewAdapter(application, portInt)
 
+	gatewayServer := gateway.NewAdapter(portInt, gatewayPortInt)
+
 	grpcServer.Run()
+	gatewayServer.Run()
 }
