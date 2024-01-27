@@ -9,6 +9,7 @@ import (
 	"github.com/kevinkimutai/ticketingapp/event/adapters/auth"
 	"github.com/kevinkimutai/ticketingapp/event/adapters/db"
 	"github.com/kevinkimutai/ticketingapp/event/adapters/grpc"
+	"github.com/kevinkimutai/ticketingapp/event/adapters/organiser"
 	"github.com/kevinkimutai/ticketingapp/event/application/api"
 
 	"github.com/joho/godotenv"
@@ -25,6 +26,7 @@ func main() {
 	PORT := os.Getenv("PORT")
 	DBURL := os.Getenv("DB_URL")
 	AUTHURL := os.Getenv("AUTH_URL")
+	ORGANISERURL := os.Getenv("ORGANISER_URL")
 
 	//Convert Port to int
 	portInt, err := strconv.Atoi(PORT)
@@ -42,7 +44,12 @@ func main() {
 		log.Fatal("couldnt connect to Auth Service", err)
 	}
 
-	application := api.NewApplication(dbAdapter)
+	organiserAdapter, err := organiser.NewAdapter(ORGANISERURL)
+	if err != nil {
+		log.Fatal("couldnt connect to Auth Service", err)
+	}
+
+	application := api.NewApplication(dbAdapter, organiserAdapter)
 
 	grpcServer := grpc.NewAdapter(application, portInt, authAdapter)
 

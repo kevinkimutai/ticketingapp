@@ -49,6 +49,6 @@ func main() {
 
 	gatewayServer := gateway.NewAdapter(portInt, gatewayPortInt)
 
+	go gatewayServer.Run()
 	grpcServer.Run()
-	gatewayServer.Run()
 }

@@ -3,6 +3,7 @@ package gateway
 import (
 	"context"
 	"fmt"
+
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -40,5 +41,11 @@ func (a Adapter) Run() error {
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
 	portAddr := fmt.Sprintf(":%d", a.port)
 
-	return http.ListenAndServe(portAddr, mux)
+	err = http.ListenAndServe(portAddr, mux)
+	if err != nil {
+		return err
+	}
+
+	return err
+
 }

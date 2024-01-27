@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/kevinkimutai/ticketingapp/event/application/domain"
 	eventproto "github.com/kevinkimutai/ticketingapp/event/proto/golang/event"
 )
@@ -17,7 +18,10 @@ func (a Adapter) CreateEvent(ctx context.Context, req *eventproto.CreateEventReq
 		return nil, err
 	}
 
-	result, err := a.api.CreateEvent(newEvent)
+	userId := ctx.Value("userid").(uint64)
+	log.Info(userId)
+
+	result, err := a.api.CreateEvent(userId, newEvent)
 	if err != nil {
 		return nil, err
 	}

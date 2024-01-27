@@ -36,13 +36,16 @@ func NewAdapter(dbString string) (*Adapter, error) {
 }
 
 func (a *Adapter) Create(event domain.Event) (domain.Event, error) {
-	//Begin Transaction
-	tx := a.db.Begin()
-	err := tx.Create(&event).Error
+
+	err := a.db.Create(&event).Error
+
 	if err != nil {
 		return event, err
 	}
-	//Organiser service
 
 	return event, nil
+}
+
+func (a *Adapter) BeginTx() *gorm.DB {
+	return a.db.Begin()
 }

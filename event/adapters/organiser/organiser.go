@@ -1,22 +1,22 @@
 package organiser
 
 import (
-	"context"
+	"errors"
 	"time"
 
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 
-	authproto "github.com/kevinkimutai/ticketingapp/event/proto/golang/auth"
+	organiserproto "github.com/kevinkimutai/ticketingapp/event/proto/golang/organiser"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Adapter struct {
-	auth authproto.AuthProtoClient
+	organiser organiserproto.OrganiserClient
 }
 
-func NewAdapter(authServiceUrl string) (*Adapter, error) {
+func NewAdapter(organiserServiceUrl string) (*Adapter, error) {
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(
 		grpc_retry.WithCodes(codes.Unavailable, codes.ResourceExhausted),
@@ -24,20 +24,17 @@ func NewAdapter(authServiceUrl string) (*Adapter, error) {
 		grpc_retry.WithBackoff(grpc_retry.BackoffLinear(time.Second)),
 	)))
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := grpc.Dial(authServiceUrl, opts...)
+	conn, err := grpc.Dial(organiserServiceUrl, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	client := authproto.NewAuthProtoClient(conn)
-	return &Adapter{auth: client}, nil
+	client := organiserproto.NewOrganiserClient(conn)
+	return &Adapter{organiser: client}, nil
 }
 
-func (a *Adapter) Verify(token string) (uint64, error) {
-	response, err := a.auth.VerifyJWT(context.Background(),
-		&authproto.VerifyTokenRequest{
-			Token: token,
-		})
+func (adapter *Adapter) CreateOrganiser(eventId uint64, userid uint64) error {
+	//OrganiserRequest
 
-	return response.UserId, err
+	return errors.New("abcdef")
 }
