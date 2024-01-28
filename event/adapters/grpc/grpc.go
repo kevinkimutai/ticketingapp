@@ -29,3 +29,7 @@ func (a Adapter) CreateEvent(ctx context.Context, req *eventproto.CreateEventReq
 	return &eventproto.CreateEventResponse{EventId: result.ID}, nil
 
 }
+
+//CREATETICKET
+
+//CREATETICKETTYPE
