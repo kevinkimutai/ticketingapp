@@ -5,15 +5,13 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/log"
-
-	"github.com/kevinkimutai/ticketingapp/event/adapters/auth"
-	"github.com/kevinkimutai/ticketingapp/event/adapters/db"
-	"github.com/kevinkimutai/ticketingapp/event/adapters/gateway"
-	"github.com/kevinkimutai/ticketingapp/event/adapters/grpc"
-	"github.com/kevinkimutai/ticketingapp/event/adapters/organiser"
-	"github.com/kevinkimutai/ticketingapp/event/application/api"
-
 	"github.com/joho/godotenv"
+	"github.com/kevinkimutai/ticketingapp/order/adapters/auth"
+	"github.com/kevinkimutai/ticketingapp/order/adapters/db"
+	"github.com/kevinkimutai/ticketingapp/order/adapters/gateway"
+	"github.com/kevinkimutai/ticketingapp/order/adapters/grpc"
+	"github.com/kevinkimutai/ticketingapp/order/adapters/payment"
+	"github.com/kevinkimutai/ticketingapp/order/application/api"
 )
 
 func main() {
@@ -26,9 +24,9 @@ func main() {
 	//GET ENV VARIABLES
 	PORT := os.Getenv("PORT")
 	DBURL := os.Getenv("DB_URL")
-	AUTHURL := os.Getenv("AUTH_URL")
-	ORGANISERURL := os.Getenv("ORGANISER_URL")
+	PAYMENTURL := os.Getenv("PAYMENT_URL")
 	HTTPPORT := os.Getenv("HTTP_PORT")
+	AUTHURL := os.Getenv("AUTH_URL")
 
 	//Convert Port to int
 	portInt, err := strconv.Atoi(PORT)
@@ -47,19 +45,19 @@ func main() {
 		log.Fatal("couldnt connect to DB", err)
 	}
 
+	paymentAdapter, err := payment.NewAdapter(PAYMENTURL)
+	if err != nil {
+		log.Fatal("couldnt connect to Auth Service", err)
+	}
+
 	authAdapter, err := auth.NewAdapter(AUTHURL)
 	if err != nil {
 		log.Fatal("couldnt connect to Auth Service", err)
 	}
 
-	organiserAdapter, err := organiser.NewAdapter(ORGANISERURL)
-	if err != nil {
-		log.Fatal("couldnt connect to Organiser Service", err)
-	}
+	application := api.NewApplication(dbAdapter, paymentAdapter, authAdapter)
 
-	application := api.NewApplication(dbAdapter, organiserAdapter)
-
-	grpcServer := grpc.NewAdapter(application, portInt, authAdapter)
+	grpcServer := grpc.NewAdapter(application, portInt)
 	gatewayServer := gateway.NewAdapter(portInt, httpPort)
 
 	go gatewayServer.Run()

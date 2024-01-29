@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+option go_package = "github.com/kevinkimutai/ticketingapp/order/orderproto";
+
+import "google/api/annotations.proto";
+
+
+
+message Order{
+  uint64 order_id = 1;            
+  uint64 user_id = 2;           
+  repeated OrderItems items = 3;
+  float total_amount = 4;                 
+  string currency = 5;                     
+  string payment_status = 6;           
+  string payment_method = 7;         
+  string createdAt = 8; 
+}
+
+message CreateOrderRequest{        
+           
+  repeated OrderItems items = 3;
+  float total_amount = 4;                 
+  string currency = 5;                     
+  string payment_status = 6;           
+  string payment_method = 7;         
+}
+
+message CreateOrderResponse{        
+  uint64 order_id = 1;           
+      
+}
+
+message OrderItems{
+    uint64 ticket_id = 1;
+    uint64 quantity =  2;                      
+    float price =3;              
+    float total =4;      
+
+}
+
+message GetOrdersRequest {
+  // Pagination parameters (optional)
+  int64 page_number = 1; 
+  int64 page_size = 2; 
+    
+}
+
+message GetOrdersResponse {
+    repeated Order order  = 1;
+    uint64 total_number_of_orders = 2;
+}
+
+
+
+service OrderProto {
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse){
+        option (google.api.http) = {
+        post: "/v1/order" 
+        body: "*"
+        };
+    };
+
+    rpc GetOrders (GetOrdersRequest) returns (GetOrdersResponse){
+         option (google.api.http) = {
+         get: "/v1/orders"
+        };
+    };
+ 
+}

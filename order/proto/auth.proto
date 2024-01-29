@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+option go_package = "github.com/kevinkimutai/ticketingapp/order/authproto";
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+}
+
+message SignUpRequest {
+    string first_name = 1;
+    string last_name = 2;
+    string email = 3;
+    string password = 4;
+}
+
+message SignUpResponse {
+    uint64 user_id = 1;
+}
+
+message VerifyTokenRequest{
+    string token = 1;
+}
+
+message VerifyTokenResponse{
+   uint64 user_id = 1;
+}
+
+service AuthProto {
+  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc Signup (SignUpRequest) returns (SignUpResponse);
+  rpc VerifyJWT(VerifyTokenRequest)returns(VerifyTokenResponse);
+}
