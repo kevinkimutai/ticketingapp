@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+option go_package = "github.com/kevinkimutai/ticketingapp/event/eventproto";
+
+import "google/api/annotations.proto";
+
+message EventType {
+    uint64 ID = 1;
+    string name = 2;
+    string venue = 3;
+    string town = 4;
+    float longitude = 5;
+    float latitude = 6;
+    string poster_img = 7;
+}
+
+
+message GetEventsRequest {
+  
+  // Pagination parameters (optional)
+  int64 page_number = 1; 
+  int64 page_size = 2; 
+  string search =3;
+  
+  //DATES
+}
+
+message GetEventsResponse {
+    repeated EventType event  = 1;
+    uint64 total_number_of_events = 2;
+}
+
+message CreateEventRequest {
+    string name = 1;
+    string venue = 2;
+    string town = 3;
+    float longitude = 4;
+    float latitude = 5;
+    string poster_img = 6;
+
+}
+
+message CreateEventResponse {
+    uint64 event_id = 1;
+}
+
+
+service Event {
+    rpc CreateEvent (CreateEventRequest) returns (CreateEventResponse){
+        option (google.api.http) = {
+        post: "/v1/event" 
+        body: "*"
+        };
+    };
+
+    rpc GetEvents (GetEventsRequest) returns (GetEventsResponse){
+         option (google.api.http) = {
+         get: "/v1/events"
+        };
+    };
+ 
+}

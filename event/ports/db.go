@@ -8,4 +8,5 @@ import (
 type DBPort interface {
 	Create(domain.Event) (domain.Event, error)
 	BeginTx() *gorm.DB
+	GetEvents(domain.Params) ([]domain.Event, error)
 }

@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kevinkimutai/ticketingapp/event/application/domain"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -48,4 +50,18 @@ func (a *Adapter) Create(event domain.Event) (domain.Event, error) {
 
 func (a *Adapter) BeginTx() *gorm.DB {
 	return a.db.Begin()
+}
+
+func (a *Adapter) GetEvents(params domain.Params) ([]domain.Event, error) {
+	events := []domain.Event{}
+
+	offset := (params.PageNumber - 1) * params.PageSize
+	err := a.db.Offset(int(offset)).Limit(int(params.PageSize)).Find(&events).Error
+
+	if err != nil {
+		errMsg := fmt.Sprintf("something went wrong %d", err)
+		return events, status.Errorf(codes.Internal, errMsg)
+	}
+
+	return events, nil
 }

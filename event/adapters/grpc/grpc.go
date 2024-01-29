@@ -30,6 +30,17 @@ func (a Adapter) CreateEvent(ctx context.Context, req *eventproto.CreateEventReq
 
 }
 
-//CREATETICKET
+func (a Adapter) GetEvents(ctx context.Context, req *eventproto.GetEventsRequest) (*eventproto.GetEventsResponse, error) {
+	request := domain.Params{PageNumber: req.PageNumber, PageSize: req.PageSize}
 
-//CREATETICKETTYPE
+	params := domain.NewParams(request)
+
+	events, err := a.api.GetAllEvents(params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &eventproto.GetEventsResponse{Event: events}, nil
+
+}

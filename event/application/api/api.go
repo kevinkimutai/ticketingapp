@@ -64,3 +64,10 @@ func (a *Application) CreateOrganiser(eventId uint64, userid uint64) error {
 	return errors.New("not implemented")
 
 }
+
+func (a *Application) GetAllEvents(params domain.Params) ([]domain.Event, error) {
+	events, err := a.db.GetEvents(params)
+
+	return events, err
+
+}
