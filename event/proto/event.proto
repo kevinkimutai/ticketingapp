@@ -4,6 +4,7 @@ option go_package = "github.com/kevinkimutai/ticketingapp/event/eventproto";
 
 import "google/api/annotations.proto";
 
+
 message EventType {
     uint64 ID = 1;
     string name = 2;
@@ -12,6 +13,9 @@ message EventType {
     float longitude = 5;
     float latitude = 6;
     string poster_img = 7;
+    string start_time = 8;
+    string end_time = 9;
+
 }
 
 
@@ -37,7 +41,6 @@ message CreateEventRequest {
     float longitude = 4;
     float latitude = 5;
     string poster_img = 6;
-
 }
 
 message CreateEventResponse {

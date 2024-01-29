@@ -8,15 +8,16 @@ import (
 )
 
 type Event struct {
-	ID           uint64 `json:"id"`
-	Name         string `json:"name"`
-	PosterImgURL string `json:"poster_img"`
-
-	Venue     string  `json:"venue"`
-	Town      string  `json:"town"`
-	Longitude float64 `json:"longitude"`
-	Latitude  float64 `json:"latitude"`
-	CreatedAt time.Time
+	ID           uint64    `json:"id"`
+	Name         string    `json:"name"`
+	PosterImgURL string    `json:"poster_img"`
+	StartTime    time.Time `json:"start_time"`
+	EndTime      time.Time `json:"end_time"`
+	Venue        string    `json:"venue"`
+	Town         string    `json:"town"`
+	Longitude    float64   `json:"longitude"`
+	Latitude     float64   `json:"latitude"`
+	CreatedAt    time.Time
 }
 
 type Params struct {

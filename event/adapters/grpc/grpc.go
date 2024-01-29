@@ -36,11 +36,37 @@ func (a Adapter) GetEvents(ctx context.Context, req *eventproto.GetEventsRequest
 	params := domain.NewParams(request)
 
 	events, err := a.api.GetAllEvents(params)
-
 	if err != nil {
 		return nil, err
 	}
 
-	return &eventproto.GetEventsResponse{Event: events}, nil
+	response := &eventproto.GetEventsResponse{
+		Event: []*eventproto.EventType{},
+	}
 
+	//Convert domain.Event to eventProto.GetEventResponse
+	for _, event := range events {
+		protoEvent := ConvertDomainEventToProtoResponse(event)
+		response.Event = append(response.Event, protoEvent)
+	}
+
+	return &eventproto.GetEventsResponse{Event: response.Event}, nil
+
+}
+
+//TODO:CHECK ON TIME FORMAT
+
+func ConvertDomainEventToProtoResponse(event domain.Event) *eventproto.EventType {
+	protoEvent := &eventproto.EventType{
+		ID:        event.ID,
+		Name:      event.Name,
+		Venue:     event.Venue,
+		Town:      event.Town,
+		Longitude: float32(event.Latitude),
+		Latitude:  float32(event.Latitude),
+		PosterImg: event.PosterImgURL,
+		StartTime: event.StartTime.String(),
+		EndTime:   event.EndTime.String(),
+	}
+	return protoEvent
 }
