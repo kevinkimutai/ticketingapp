@@ -27,7 +27,14 @@ message CreateOrderRequest{
 }
 
 message CreateOrderResponse{        
-  uint64 order_id = 1;           
+  uint64 order_id = 1;            
+  uint64 user_id = 2;           
+  repeated OrderItems items = 3;
+  float total_amount = 4;                 
+  string currency = 5;                     
+  string payment_status = 6;           
+  string payment_method = 7;         
+  string createdAt = 8;         
       
 }
 

@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/kevinkimutai/ticketingapp/order/application/domain"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -41,6 +43,13 @@ func NewAdapter(dbString string) (*Adapter, error) {
 	return &Adapter{db: db}, nil
 }
 
-func (a Adapter) CreateOrder(order domain.Order) error {
-	a.db.Create()
+func (a Adapter) CreateOrder(order domain.Order) (domain.Order, error) {
+	err := a.db.Create(&order).Error
+
+	if err != nil {
+		errMsg := fmt.Sprintf("error creating order :", err)
+		return order, status.Errorf(codes.Internal, errMsg)
+	}
+
+	return order, nil
 }

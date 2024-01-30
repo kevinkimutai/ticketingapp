@@ -1,16 +1,18 @@
 package payment
 
 import (
+	"context"
 	"time"
 
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	paymentproto "github.com/kevinkimutai/ticketingapp/order/proto/golang/payment"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Adapter struct {
-	payment //
+	payment paymentproto.PaymentProtoClient
 }
 
 func NewAdapter(organiserServiceUrl string) (*Adapter, error) {
@@ -26,6 +28,16 @@ func NewAdapter(organiserServiceUrl string) (*Adapter, error) {
 		return nil, err
 	}
 
-	client := paymentproto.NewOrganiserClient(conn)
-	return &Adapter{organiser: client}, nil
+	client := paymentproto.NewPaymentProtoClient(conn)
+	return &Adapter{payment: client}, nil
+}
+
+func (a Adapter) CreatePayment(payment domain.Payment) (uint64, error) {
+	response, err := a.payment.CreatePayment(context.Background(),
+		&paymentproto.CreatePaymentRequest{
+			OrderId: ,
+		
+		})
+
+	return response.UserId, err
 }

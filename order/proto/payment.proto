@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "github.com/kevinkimutai/ticketingapp/order/paymentproto";
+
+
+message CreatePaymentRequest{   
+  uint64 order_id = 1;     
+  uint64 user_id = 2;     
+  repeated OrderItems items = 3;
+  float total_amount = 4;                 
+  string currency = 5;                     
+    
+}
+
+message CreatePaymentResponse{        
+  uint64 payment_id = 1;           
+      
+}
+
+message OrderItems{
+    uint64 ticket_id = 1;
+    uint64 quantity =  2;                      
+    float price =3;              
+    float total =4;      
+
+}
+
+
+service PaymentProto {
+    rpc CreatePayment (CreatePaymentRequest) returns (CreatePaymentResponse);
+ 
+}

@@ -24,7 +24,10 @@ func (a Adapter) CreateOrder(ctx context.Context, req *orderproto.CreateOrderReq
 		return nil, err
 	}
 
-	a.api.CreateNewOrder()
+	order, err := a.api.CreateNewOrder(newOrder)
+	if err != nil {
+		return nil, err
+	}
 
 }
 
