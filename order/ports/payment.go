@@ -1,8 +1,7 @@
 package ports
 
-type Payment struct{
-	
-}
+import "github.com/kevinkimutai/ticketingapp/order/application/domain"
+
 type PaymentPort interface {
-	CreatePayment() (uint64, error)
+	CreatePayment(domain.Order) (uint64, error)
 }

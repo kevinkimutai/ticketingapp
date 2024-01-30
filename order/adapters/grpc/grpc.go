@@ -29,6 +29,14 @@ func (a Adapter) CreateOrder(ctx context.Context, req *orderproto.CreateOrderReq
 		return nil, err
 	}
 
+	return &orderproto.CreateOrderResponse{OrderId: order.ID,
+		UserId:        order.UserID,
+		TotalAmount:   float32(order.TotalAmount),
+		Currency:      order.Currency,
+		PaymentStatus: order.PaymentStatus,
+		PaymentMethod: order.PaymentMethod,
+	}, nil
+
 }
 
 func ConvertProtoRequestToDomain(order *orderproto.OrderItems) domain.OrderItem {

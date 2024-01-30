@@ -1,8 +1,12 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/kevinkimutai/ticketingapp/order/application/domain"
 	"github.com/kevinkimutai/ticketingapp/order/ports"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Application struct {
@@ -31,10 +35,12 @@ func (a Application) CreateNewOrder(order domain.Order) (domain.Order, error) {
 	}
 
 	//Create Payment Intent
-	a.payment.CreatePayment()
+	_, err = a.payment.CreatePayment(newOrder)
+	if err != nil {
+		errMsg := fmt.Sprintf("payment request error :%d", err)
+		return newOrder, status.Errorf(codes.Internal, errMsg)
+	}
 
-	//If success
-	//Change status To Paid
+	return newOrder, nil
 
-	//Create Ticket Service
 }

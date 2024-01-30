@@ -5,6 +5,7 @@ import (
 	"time"
 
 	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
+	"github.com/kevinkimutai/ticketingapp/order/application/domain"
 	paymentproto "github.com/kevinkimutai/ticketingapp/order/proto/golang/payment"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -32,12 +33,35 @@ func NewAdapter(organiserServiceUrl string) (*Adapter, error) {
 	return &Adapter{payment: client}, nil
 }
 
-func (a Adapter) CreatePayment(payment domain.Payment) (uint64, error) {
+func (a Adapter) CreatePayment(order domain.Order) (uint64, error) {
+
+	//Convert Items to ]*paymentproto.OrderItems
+	var items []*paymentproto.OrderItems
+
+	for _, o := range order.Items {
+		paymentOrder := ConvertOrderItemsToPaymentProtoItems(o)
+		items = append(items, paymentOrder)
+	}
+
 	response, err := a.payment.CreatePayment(context.Background(),
 		&paymentproto.CreatePaymentRequest{
-			OrderId: ,
-		
+			OrderId:     order.ID,
+			UserId:      order.UserID,
+			Items:       items,
+			TotalAmount: float32(order.TotalAmount),
+			Currency:    order.Currency,
 		})
 
-	return response.UserId, err
+	return response.PaymentId, err
+}
+
+func ConvertOrderItemsToPaymentProtoItems(item domain.OrderItem) *paymentproto.OrderItems {
+	protoVal := &paymentproto.OrderItems{
+		TicketId: item.TicketID,
+		Quantity: item.Quantity,
+		Price:    float32(item.Price),
+		Total:    float32(item.Total),
+	}
+	return protoVal
+
 }
