@@ -25,8 +25,14 @@ func (a Adapter) CreatePayment(ctx context.Context, req *paymentproto.CreatePaym
 		Currency:    req.Currency,
 	}
 
-	a.api.PaymentRequest(request)
+	payment, err := a.api.PaymentRequest(request)
+	if err != nil {
+		return nil, err
+	}
 
+	return &paymentproto.CreatePaymentResponse{
+		PaymentId: payment.ID,
+	}, nil
 }
 
 func convertProtoRequestToDomain(items *paymentproto.OrderItems) domain.OrderItem {

@@ -22,11 +22,26 @@ func (a Application) Verify(token string) (uint64, error) {
 
 }
 
-func (a Application) PaymentRequest(payment domain.Payment) {
+func (a Application) PaymentRequest(payment domain.Payment) (domain.Payment, error) {
 	///Stripe Payment
-	a.stripe.CreateCheckoutSession(payment)
+	stripeID, err := a.stripe.CreateCheckoutSession(payment)
+	if err != nil {
+		return payment, err
+	}
+
+	//Payment struct
+	newPayment, err := domain.NewPayment(payment, stripeID)
+	if err != nil {
+		return payment, err
+	}
 
 	//Save To DB
+	pay, err := a.db.CreatePayment(newPayment)
+	if err != nil {
+		return pay, err
+	}
+
+	return pay, nil
 
 	//Send Request Saving To Order
 

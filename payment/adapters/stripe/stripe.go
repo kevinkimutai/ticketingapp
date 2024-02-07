@@ -1,11 +1,15 @@
 package stripepkg
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/log"
 	"github.com/kevinkimutai/ticketingapp/payment/application/domain"
 
-	//"github.com/stripe/stripe-go/v72/checkout/session"
 	"github.com/stripe/stripe-go/v76"
+	"github.com/stripe/stripe-go/v76/checkout/session"
+	"google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 type Adapter struct {
@@ -16,7 +20,7 @@ func NewAdapter(stripeSecret string) *Adapter {
 	return &Adapter{stripekey: stripeSecret}
 }
 
-func (a Adapter) CreateCheckoutSession(payment domain.Payment) {
+func (a Adapter) CreateCheckoutSession(payment domain.Payment) (string, error) {
 	stripe.Key = a.stripekey
 
 	var paymentItems []*stripe.CheckoutSessionLineItemParams
@@ -39,12 +43,18 @@ func (a Adapter) CreateCheckoutSession(payment domain.Payment) {
 
 	log.Info(params)
 
-	// session, err := session.New(params)
-	// if err != nil {
-	// 	log.Printf("Failed to create Stripe session: %v", err)
-	// 	http.Error(w, "Failed to create Stripe session", http.StatusInternalServerError)
-	// 	return
-	// }
+	session, err := session.New(params)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to create Stripe session: %v", err)
+		// Access the Stripe session ID
+		stripeSessionID := session.ID
+
+		return stripeSessionID, status.Errorf(codes.Internal, errMsg)
+	}
+	// Access the Stripe session ID
+	stripeSessionID := session.ID
+
+	return stripeSessionID, nil
 
 	// fmt.Fprintf(w, "%s", session.ID)
 }
@@ -53,7 +63,7 @@ func convertToStripeTypes(order domain.OrderItem) *stripe.CheckoutSessionLineIte
 	return &stripe.CheckoutSessionLineItemParams{
 		PriceData: &stripe.CheckoutSessionLineItemPriceDataParams{
 			Currency:   stripe.String("KES"),
-			Product:    stripe.String(string(order.TicketID)),
+			Product:    stripe.String(fmt.Sprint(order.TicketID)),
 			UnitAmount: stripe.Int64(int64(order.Price) * 100),
 		},
 		Quantity: stripe.Int64(int64(order.Quantity)),
